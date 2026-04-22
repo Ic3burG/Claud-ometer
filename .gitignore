@@ -49,3 +49,7 @@ next-env.d.ts
 
 ### IntelliJ IDEA ###
 .idea
+
+# electron
+/dist-electron/
+/dist/
