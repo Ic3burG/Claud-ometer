@@ -29,6 +29,8 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^33.4.11",
+    "electron-builder": "^25.1.8",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "puppeteer": "^24.37.5",
