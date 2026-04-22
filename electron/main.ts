@@ -23,11 +23,12 @@ async function waitForServer(): Promise<void> {
   const deadline = Date.now() + 15_000
   while (Date.now() < deadline) {
     try {
-      await fetch(`http://127.0.0.1:${PORT}/api/stats`)
-      return
+      const res = await fetch(`http://127.0.0.1:${PORT}/api/stats`)
+      if (res.ok) return
     } catch {
-      await new Promise(resolve => setTimeout(resolve, 300))
+      // server not yet ready
     }
+    await new Promise(resolve => setTimeout(resolve, 300))
   }
   throw new Error('Claud-ometer server did not start within 15 seconds')
 }
@@ -40,7 +41,7 @@ function startServer(): void {
       HOSTNAME: '127.0.0.1',
       NODE_ENV: 'production',
     },
-    stdio: 'pipe',
+    stdio: 'inherit',
   })
 }
 
@@ -105,4 +106,7 @@ app.whenReady().then(async () => {
   await waitForServer()
   createWindow()
   createTray()
+}).catch((err: Error) => {
+  console.error('Claud-ometer failed to start:', err.message)
+  app.quit()
 })
