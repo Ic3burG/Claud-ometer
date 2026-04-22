@@ -1,16 +1,38 @@
 import { app, BrowserWindow, Menu, Tray, nativeImage, utilityProcess } from 'electron'
 import type { UtilityProcess } from 'electron'
 import path from 'path'
+import { readdirSync, statSync } from 'fs'
 
 const PORT = 3001
 let tray: Tray | null = null
 let win: BrowserWindow | null = null
 let server: UtilityProcess | null = null
 
+function findServerJs(dir: string): string | null {
+  let entries: string[]
+  try { entries = readdirSync(dir) } catch { return null }
+  for (const entry of entries) {
+    if (entry === 'node_modules') continue
+    const full = path.join(dir, entry)
+    try {
+      const stat = statSync(full)
+      if (stat.isFile() && entry === 'server.js') return full
+      if (stat.isDirectory()) {
+        const found = findServerJs(full)
+        if (found) return found
+      }
+    } catch { continue }
+  }
+  return null
+}
+
 function getServerPath(): string {
-  return app.isPackaged
-    ? path.join(process.resourcesPath, 'standalone', 'server.js')
-    : path.join(app.getAppPath(), '.next', 'standalone', 'server.js')
+  const standaloneDir = app.isPackaged
+    ? path.join(process.resourcesPath, 'standalone')
+    : path.join(app.getAppPath(), '.next', 'standalone')
+  const found = findServerJs(standaloneDir)
+  if (!found) throw new Error(`server.js not found in ${standaloneDir}`)
+  return found
 }
 
 function getIconPath(): string {
