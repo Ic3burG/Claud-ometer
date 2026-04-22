@@ -106,7 +106,8 @@ app.whenReady().then(async () => {
   await waitForServer()
   createWindow()
   createTray()
-}).catch((err: Error) => {
-  console.error('Claud-ometer failed to start:', err.message)
+}).catch((err: unknown) => {
+  const message = err instanceof Error ? err.message : String(err)
+  console.error('Claud-ometer failed to start:', message)
   app.quit()
 })
